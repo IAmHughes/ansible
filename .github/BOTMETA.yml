@@ -161,7 +161,7 @@ files:
     ignored: astorije
     maintainers: $team_ansible
   $modules/files/assemble.py: $team_ansible
-  $modules/files/copy.py: $team_ansible
+  $modules/files/copy.py: $team_ansible ptux
   $modules/files/fetch.py: $team_ansible
   $modules/files/file.py: $team_ansible
   $modules/files/find.py: $team_ansible
@@ -297,6 +297,7 @@ files:
   $modules/packaging/os/redhat_subscription.py: alikins kahowell
   $modules/packaging/os/rhn_channel.py: alikins
   $modules/packaging/os/rhn_register.py: $team_rhn
+  $modules/packaging/os/snap.py: angristan
   $modules/packaging/os/yum.py: $team_ansible kustodian
   $modules/packaging/os/zypper.py:
     ignored: dirtyharrycallahan
@@ -1118,7 +1119,7 @@ macros:
   team_onyx: samerd
   team_openstack: emonty omgjlk juliakreger rcarrillocruz shrews thingee dagnello mnaser
   team_openswitch: Qalthos gdpak
-  team_purestorage: sdodsley
+  team_purestorage: sdodsley sile16 lionmax genegr raekins bannaych
   team_rabbitmq: chrishoffman manuel-sousa hyperized
   team_redfish: jose-delarosa mraineri tomasg2012 billdodd
   team_rhn: alikins barnabycourt flossware vritant
