@@ -317,6 +317,7 @@ class StrategyBase:
 
                     worker_prc = WorkerProcess(self._final_q, task_vars, host, task, play_context, self._loader, self._variable_manager, shared_loader_obj)
                     self._workers[self._cur_worker] = worker_prc
+                    self._tqm.send_callback('v2_runner_on_start', host, task)
                     worker_prc.start()
                     display.debug("worker is %d (out of %d available)" % (self._cur_worker + 1, len(self._workers)))
                     queued = True
@@ -968,7 +969,7 @@ class StrategyBase:
                     for host in included_file._hosts:
                         iterator.mark_host_failed(host)
                         self._tqm._failed_hosts[host.name] = True
-                    display.warning(str(e))
+                    display.warning(to_text(e))
                     continue
 
         # remove hosts from notification list
