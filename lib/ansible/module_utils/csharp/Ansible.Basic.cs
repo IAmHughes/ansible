@@ -700,7 +700,8 @@ namespace Ansible.Basic
             // initially parse the params and check for unsupported ones and set internal vars
             CheckUnsupportedArguments(param, legalInputs);
 
-            if (CheckMode && !(bool)spec["supports_check_mode"])
+            // Only run this check if we are at the root argument (optionsContext.Count == 0)
+            if (CheckMode && !(bool)spec["supports_check_mode"] && optionsContext.Count == 0)
             {
                 Result["skipped"] = true;
                 Result["msg"] = String.Format("remote module ({0}) does not support check mode", ModuleName);
@@ -1228,14 +1229,7 @@ namespace Ansible.Basic
 
         private static void WriteLineModule(string line)
         {
-            // When running over psrp there may not be a console to write the
-            // line to, we check if there is a Console Window and fallback on
-            // setting a variable that the Ansible module_wrapper will check
-            // and output to the PowerShell Output stream on close.
-            if (GetConsoleWindow() != IntPtr.Zero)
-                Console.WriteLine(line);
-            else
-                ScriptBlock.Create("Set-Variable -Name _ansible_output -Value $args[0] -Scope Global").Invoke(line);
+            Console.WriteLine(line);
         }
     }
 }
