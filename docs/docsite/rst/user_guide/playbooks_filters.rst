@@ -821,12 +821,6 @@ Some hash types allow providing a rounds parameter::
 
     {{ 'secretpassword' | password_hash('sha256', 'mysecretsalt', rounds=10000) }}
 
-When`Passlib <https://passlib.readthedocs.io/en/stable/>`_ is installed
-`password_hash` supports any crypt scheme and parameter supported by 'Passlib'::
-
-    {{ 'secretpassword' | password_hash('sha256_crypt', 'mysecretsalt', rounds=5000) }}
-    {{ 'secretpassword' | password_hash('bcrypt', ident='2b', rounds=14) }}
-
 .. _combine_filter:
 
 Combining hashes/dictionaries
@@ -1082,6 +1076,32 @@ To escape special characters within a regex, use the "regex_escape" filter::
     # convert '^f.*o(.*)$' to '\^f\.\*o\(\.\*\)\$'
     {{ '^f.*o(.*)$' | regex_escape() }}
 
+
+Kubernetes Filters
+``````````````````
+
+Use the "k8s_config_resource_name" filter to obtain the name of a Kubernetes ConfigMap or Secret,
+including its hash::
+
+    {{ configmap_resource_definition | k8s_config_resource_name }}
+
+This can then be used to reference hashes in Pod specifications::
+
+    my_secret:
+      kind: Secret
+      name: my_secret_name
+
+    deployment_resource:
+      kind: Deployment
+      spec:
+        template:
+          spec:
+            containers:
+            - envFrom:
+                - secretRef:
+                    name: {{ my_secret | k8s_config_resource_name }}
+
+.. versionadded:: 2.8
 
 Other Useful Filters
 ````````````````````

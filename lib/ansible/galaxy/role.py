@@ -36,12 +36,9 @@ from ansible.module_utils._text import to_native, to_text
 from ansible.module_utils.urls import open_url
 from ansible.playbook.role.requirement import RoleRequirement
 from ansible.galaxy.api import GalaxyAPI
+from ansible.utils.display import Display
 
-try:
-    from __main__ import display
-except ImportError:
-    from ansible.utils.display import Display
-    display = Display()
+display = Display()
 
 
 class GalaxyRole(object):
@@ -103,7 +100,7 @@ class GalaxyRole(object):
                     try:
                         f = open(meta_path, 'r')
                         self._metadata = yaml.safe_load(f)
-                    except:
+                    except Exception:
                         display.vvvvv("Unable to load metadata for %s" % self.name)
                         return False
                     finally:
@@ -123,7 +120,7 @@ class GalaxyRole(object):
                 try:
                     f = open(info_path, 'r')
                     self._install_info = yaml.safe_load(f)
-                except:
+                except Exception:
                     display.vvvvv("Unable to load Galaxy install info for %s" % self.name)
                     return False
                 finally:
@@ -147,7 +144,7 @@ class GalaxyRole(object):
         with open(info_path, 'w+') as f:
             try:
                 self._install_info = yaml.safe_dump(info, f)
-            except:
+            except Exception:
                 return False
 
         return True
@@ -162,7 +159,7 @@ class GalaxyRole(object):
             try:
                 rmtree(self.path)
                 return True
-            except:
+            except Exception:
                 pass
 
         return False
@@ -288,7 +285,7 @@ class GalaxyRole(object):
                 else:
                     try:
                         self._metadata = yaml.safe_load(role_tar_file.extractfile(meta_file))
-                    except:
+                    except Exception:
                         raise AnsibleError("this role does not appear to have a valid meta/main.yml file.")
 
                 # we strip off any higher-level directories for all of the files contained within

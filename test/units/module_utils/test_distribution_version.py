@@ -7,7 +7,10 @@ __metaclass__ = type
 
 from itertools import product
 
+import mock
 import pytest
+
+from ansible.module_utils.six.moves import builtins
 
 # the module we are actually testing (sort of)
 from ansible.module_utils.facts.system.distribution import DistributionFactCollector
@@ -969,36 +972,49 @@ DISTRIB_DESCRIPTION="CoreOS 976.0.0 (Coeur Rouge)"
     },
 
     # ClearLinux https://github.com/ansible/ansible/issues/31501#issuecomment-340861535
-    {
-        "platform.dist": [
-            "Clear Linux OS for Intel Architecture",
-            "18450",
-            "clear-linux-os"
-        ],
-        "input": {
-            "/usr/lib/os-release": '''
-NAME="Clear Linux OS for Intel Architecture"
+{
+    "platform.dist": [
+        "Clear Linux OS",
+        "26580",
+        "clear-linux-os"
+    ],
+    "input": {
+        "/etc/os-release": '''
+NAME="Clear Linux OS"
 VERSION=1
 ID=clear-linux-os
-VERSION_ID=18450
-PRETTY_NAME="Clear Linux OS for Intel Architecture"
+ID_LIKE=clear-linux-os
+VERSION_ID=26580
+PRETTY_NAME="Clear Linux OS"
+ANSI_COLOR="1;35"
+HOME_URL="https://clearlinux.org"
+SUPPORT_URL="https://clearlinux.org"
+BUG_REPORT_URL="mailto:dev@lists.clearlinux.org"
+PRIVACY_POLICY_URL="http://www.intel.com/privacy"
+''',
+        "/usr/lib/os-release": '''
+NAME="Clear Linux OS"
+VERSION=1
+ID=clear-linux-os
+ID_LIKE=clear-linux-os
+VERSION_ID=26580
+PRETTY_NAME="Clear Linux OS"
 ANSI_COLOR="1;35"
 HOME_URL="https://clearlinux.org"
 SUPPORT_URL="https://clearlinux.org"
 BUG_REPORT_URL="mailto:dev@lists.clearlinux.org"
 PRIVACY_POLICY_URL="http://www.intel.com/privacy"
 '''
-        },
-        "name": "Clear Linux OS for Intel Architecture 1",
-        "result": {
-            "distribution_release": "clear-linux-os",
-            "distribution": "ClearLinux",
-            "distribution_major_version": "18450",
-            "os_family": "ClearLinux",
-            "distribution_version": "18450"
-        }
     },
-
+    "name": "ClearLinux 26580",
+    "result": {
+        "distribution_release": "clear-linux-os",
+        "distribution": "Clear Linux OS",
+        "distribution_major_version": "26580",
+        "os_family": "ClearLinux",
+        "distribution_version": "26580"
+    }
+},
     # ArchLinux with no /etc/arch-release but with a /etc/os-release with NAME=Arch Linux
     # The fact needs to map 'Arch Linux' to 'Archlinux' for compat with 2.3 and earlier facts
     {
@@ -1031,7 +1047,7 @@ def test_distribution_version(am, mocker, testcase):
     * input files that are faked
       * those should be complete and also include "irrelevant" files that might be mistaken as coming from other distributions
       * all files that are not listed here are assumed to not exist at all
-    * the output of pythons platform.dist()
+    * the output of ansible.module_utils.distro.linux_distribution() [called platform.dist() for historical reasons]
     * results for the ansible variables distribution* and os_family
 
     """
@@ -1068,13 +1084,42 @@ def test_distribution_version(am, mocker, testcase):
     def mock_platform_version():
         return testcase.get('platform.version', '')
 
+    def mock_distro_name():
+        return testcase['platform.dist'][0]
+
+    def mock_distro_version():
+        return testcase['platform.dist'][1]
+
+    def mock_distro_codename():
+        return testcase['platform.dist'][2]
+
+    def mock_open(filename, mode='r'):
+        if filename in testcase['input']:
+            file_object = mocker.mock_open(read_data=testcase['input'][filename]).return_value
+            file_object.__iter__.return_value = testcase['input'][filename].splitlines(True)
+        else:
+            file_object = real_open(filename, mode)
+        return file_object
+
+    def mock_os_path_is_file(filename):
+        if filename in testcase['input']:
+            return True
+        return False
+
     mocker.patch('ansible.module_utils.facts.system.distribution.get_file_content', mock_get_file_content)
     mocker.patch('ansible.module_utils.facts.system.distribution.get_uname_version', mock_get_uname_version)
     mocker.patch('ansible.module_utils.facts.system.distribution._file_exists', mock_file_exists)
-    mocker.patch('platform.dist', lambda: testcase['platform.dist'])
+    mocker.patch('ansible.module_utils.distro.name', mock_distro_name)
+    mocker.patch('ansible.module_utils.distro.id', mock_distro_name)
+    mocker.patch('ansible.module_utils.distro.version', mock_distro_version)
+    mocker.patch('ansible.module_utils.distro.codename', mock_distro_codename)
+    mocker.patch('os.path.isfile', mock_os_path_is_file)
     mocker.patch('platform.system', mock_platform_system)
     mocker.patch('platform.release', mock_platform_release)
     mocker.patch('platform.version', mock_platform_version)
+
+    real_open = builtins.open
+    mocker.patch.object(builtins, 'open', new=mock_open)
 
     # run Facts()
     distro_collector = DistributionFactCollector()

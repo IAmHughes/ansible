@@ -268,7 +268,7 @@ def transfer_file_to_device(module, dest):
     scp = SCPClient(ssh.get_transport())
     try:
         scp.put(module.params['local_file'], full_remote_path)
-    except:
+    except Exception:
         time.sleep(10)
         temp_size = verify_remote_file_exists(
             module, dest, file_system=module.params['file_system'])
@@ -308,9 +308,12 @@ def copy_file_from_remote(module, local, local_file_directory, file_system='boot
                     child.expect('#')
                     ldir += each + '/'
 
-        command = ('copy scp://' + module.params['remote_scp_server_user'] +
-                   '@' + module.params['remote_scp_server'] + module.params['remote_file'] +
-                   ' ' + file_system + ldir + local + ' vrf management')
+        cmdroot = 'copy scp://'
+        ruser = module.params['remote_scp_server_user'] + '@'
+        rserver = module.params['remote_scp_server']
+        rfile = module.params['remote_file'] + ' '
+        vrf = ' vrf management'
+        command = (cmdroot + ruser + rserver + rfile + file_system + ldir + local + vrf)
 
         child.sendline(command)
         # response could be remote host connection time out,

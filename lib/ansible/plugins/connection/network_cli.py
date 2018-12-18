@@ -192,12 +192,9 @@ from ansible.module_utils._text import to_bytes, to_text
 from ansible.playbook.play_context import PlayContext
 from ansible.plugins.connection import NetworkConnectionBase
 from ansible.plugins.loader import cliconf_loader, terminal_loader, connection_loader
+from ansible.utils.display import Display
 
-try:
-    from __main__ import display
-except ImportError:
-    from ansible.utils.display import Display
-    display = Display()
+display = Display()
 
 
 class AnsibleCmdRespRecv(Exception):
@@ -234,7 +231,7 @@ class Connection(NetworkConnectionBase):
             self.cliconf = cliconf_loader.get(self._network_os, self)
             if self.cliconf:
                 display.vvvv('loaded cliconf plugin for network_os %s' % self._network_os)
-                self._sub_plugins.append({'type': 'cliconf', 'name': self._network_os, 'obj': self.cliconf})
+                self._sub_plugin = {'type': 'cliconf', 'name': self._network_os, 'obj': self.cliconf}
             else:
                 display.vvvv('unable to load cliconf for network_os %s' % self._network_os)
         else:
@@ -297,8 +294,11 @@ class Connection(NetworkConnectionBase):
 
         self._play_context = play_context
 
-        self.reset_history()
-        self.disable_response_logging()
+        if hasattr(self, 'reset_history'):
+            self.reset_history()
+        if hasattr(self, 'disable_response_logging'):
+            self.disable_response_logging()
+
         return messages
 
     def _connect(self):
@@ -370,8 +370,11 @@ class Connection(NetworkConnectionBase):
         command_prompt_matched = False
         matched_prompt_window = window_count = 0
 
+        cache_socket_timeout = self._ssh_shell.gettimeout()
         command_timeout = self.get_option('persistent_command_timeout')
         self._validate_timeout_value(command_timeout, "persistent_command_timeout")
+        if cache_socket_timeout != command_timeout:
+            self._ssh_shell.settimeout(command_timeout)
 
         buffer_read_timeout = self.get_option('persistent_buffer_read_timeout')
         self._validate_timeout_value(buffer_read_timeout, "persistent_buffer_read_timeout")
@@ -393,6 +396,8 @@ class Connection(NetworkConnectionBase):
                     signal.alarm(command_timeout)
 
                 except AnsibleCmdRespRecv:
+                    # reset socket timeout to global timeout
+                    self._ssh_shell.settimeout(cache_socket_timeout)
                     return self._command_response
             else:
                 data = self._ssh_shell.recv(256)
@@ -423,6 +428,8 @@ class Connection(NetworkConnectionBase):
                 resp = self._strip(self._last_response)
                 self._command_response = self._sanitize(resp, command)
                 if buffer_read_timeout == 0.0:
+                    # reset socket timeout to global timeout
+                    self._ssh_shell.settimeout(cache_socket_timeout)
                     return self._command_response
                 else:
                     command_prompt_matched = True
@@ -445,7 +452,8 @@ class Connection(NetworkConnectionBase):
             return to_text(response, errors='surrogate_or_strict')
         except (socket.timeout, AttributeError):
             display.vvvv(traceback.format_exc(), host=self._play_context.remote_addr)
-            raise AnsibleConnectionFailure("timeout trying to send command: %s" % command.strip())
+            raise AnsibleConnectionFailure("timeout value %s seconds reached while trying to send command: %s"
+                                           % (self._ssh_shell.gettimeout(), command.strip()))
 
     def _handle_buffer_read_timeout(self, signum, frame):
         display.vvvv("Response received, triggered 'persistent_buffer_read_timeout' timer of %s seconds"

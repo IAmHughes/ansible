@@ -73,6 +73,9 @@ options:
     aliases: [ attr, attributes ]
 notes:
      - For Windows targets, use the M(win_stat) module instead.
+seealso:
+- module: file
+- module: win_stat
 author: Bruce Pennypacker (@bpennypacker)
 '''
 
@@ -529,7 +532,7 @@ def main():
                     mimetype, charset = out.split(':')[1].split(';')
                     output['mimetype'] = mimetype.strip()
                     output['charset'] = charset.split('=')[1].strip()
-            except:
+            except Exception:
                 pass
 
     # try to get attr data
