@@ -141,12 +141,12 @@ response:
     applianceIp:
       description: IP address of Meraki appliance in the VLAN
       returned: success
-      type: string
+      type: str
       sample: 192.0.1.1
     dnsnamservers:
       description: IP address or Meraki defined DNS servers which VLAN should use by default
       returned: success
-      type: string
+      type: str
       sample: upstream_dns
     fixedIpAssignments:
       description: List of MAC addresses which have IP addresses assigned.
@@ -161,12 +161,12 @@ response:
             ip:
               description: IP address which is assigned to the MAC address.
               returned: success
-              type: string
+              type: str
               sample: 192.0.1.4
             name:
               description: Descriptive name for binding.
               returned: success
-              type: string
+              type: str
               sample: fixed_ip
     reservedIpRanges:
       description: List of IP address ranges which are reserved for static assignment.
@@ -176,17 +176,17 @@ response:
         comment:
           description: Description for IP address reservation.
           returned: success
-          type: string
+          type: str
           sample: reserved_range
         end:
           description: Last IP address in reservation range.
           returned: success
-          type: string
+          type: str
           sample: 192.0.1.10
         start:
           description: First IP address in reservation range.
           returned: success
-          type: string
+          type: str
           sample: 192.0.1.5
     id:
       description: VLAN ID number.
@@ -194,20 +194,69 @@ response:
       type: int
       sample: 2
     name:
-      description: Descriptive name of VLAN
+      description: Descriptive name of VLAN.
       returned: success
-      type: string
+      type: str
       sample: TestVLAN
     networkId:
       description: ID number of Meraki network which VLAN is associated to.
       returned: success
-      type: string
+      type: str
       sample: N_12345
     subnet:
       description: CIDR notation IP subnet of VLAN.
       returned: success
-      type: string
-      sample: 192.0.1.0/24
+      type: str
+      sample: "192.0.1.0/24"
+    dhcpHandling:
+      description: Status of DHCP server on VLAN.
+      returned: success
+      type: str
+      sample: Run a DHCP server
+    dhcpLeaseTime:
+      description: DHCP lease time when server is active.
+      returned: success
+      type: str
+      sample: 1 day
+    dhcpBootOptionsEnabled:
+      description: Whether DHCP boot options are enabled.
+      returned: success
+      type: bool
+      sample: no
+    dhcpBootNextServer:
+      description: DHCP boot option to direct boot clients to the server to load the boot file from.
+      returned: success
+      type: str
+      sample: 192.0.1.2
+    dhcpBootFilename:
+      description: Filename for boot file.
+      returned: success
+      type: str
+      sample: boot.txt
+    dhcpOptions:
+      description: DHCP options.
+      returned: success
+      type: complex
+      contains:
+        code:
+          description:
+            - Code for DHCP option.
+            - Integer between 2 and 254.
+          returned: success
+          type: int
+          sample: 43
+        type:
+          description:
+            - Type for DHCP option.
+            - Choices are C(text), C(ip), C(hex), C(integer).
+          returned: success
+          type: str
+          sample: text
+        value:
+          description: Value for the DHCP option.
+          returned: success
+          type: str
+          sample: 192.0.1.2
 '''
 
 import os

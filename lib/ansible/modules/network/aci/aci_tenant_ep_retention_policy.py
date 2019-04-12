@@ -16,16 +16,6 @@ module: aci_tenant_ep_retention_policy
 short_description: Manage End Point (EP) retention protocol policies (fv:EpRetPol)
 description:
 - Manage End Point (EP) retention protocol policies on Cisco ACI fabrics.
-notes:
-- The C(tenant) used must exist before using this module in your playbook.
-  The M(aci_tenant) module can be used for this.
-seealso:
-- module: aci_tenant
-- name: APIC Management Information Model reference
-  description: More information about the internal APIC class B(fv:EpRetPol).
-  link: https://developer.cisco.com/docs/apic-mim-ref/
-author:
-- Swetha Chunduri (@schunduri)
 version_added: '2.4'
 options:
   tenant:
@@ -87,11 +77,21 @@ options:
     choices: [ absent, present, query ]
     default: present
 extends_documentation_fragment: aci
+notes:
+- The C(tenant) used must exist before using this module in your playbook.
+  The M(aci_tenant) module can be used for this.
+seealso:
+- module: aci_tenant
+- name: APIC Management Information Model reference
+  description: More information about the internal APIC class B(fv:EpRetPol).
+  link: https://developer.cisco.com/docs/apic-mim-ref/
+author:
+- Swetha Chunduri (@schunduri)
 '''
 
 EXAMPLES = r'''
 - name: Add a new EPR policy
-  aci_epr_policy:
+  aci_tenant_ep_retention_policy:
     host: apic
     username: admin
     password: SomeSecretPassword
@@ -107,7 +107,7 @@ EXAMPLES = r'''
   delegate_to: localhost
 
 - name: Remove an EPR policy
-  aci_epr_policy:
+  aci_tenant_ep_retention_policy:
     host: apic
     username: admin
     password: SomeSecretPassword
@@ -117,7 +117,7 @@ EXAMPLES = r'''
   delegate_to: localhost
 
 - name: Query an EPR policy
-  aci_epr_policy:
+  aci_tenant_ep_retention_policy:
     host: apic
     username: admin
     password: SomeSecretPassword
@@ -128,7 +128,7 @@ EXAMPLES = r'''
   register: query_result
 
 - name: Query all EPR policies
-  aci_epr_policy:
+  aci_tenant_ep_retention_policy:
     host: apic
     username: admin
     password: SomeSecretPassword
@@ -169,7 +169,7 @@ error:
 raw:
   description: The raw output returned by the APIC REST API (xml or json)
   returned: parse error
-  type: string
+  type: str
   sample: '<?xml version="1.0" encoding="UTF-8"?><imdata totalCount="1"><error code="122" text="unknown managed object class foo"/></imdata>'
 sent:
   description: The actual/minimal configuration pushed to the APIC
@@ -218,17 +218,17 @@ proposed:
 filter_string:
   description: The filter string used for the request
   returned: failure or debug
-  type: string
+  type: str
   sample: ?rsp-prop-include=config-only
 method:
   description: The HTTP method used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: POST
 response:
   description: The HTTP response from the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: OK (30 bytes)
 status:
   description: The HTTP status from the APIC
@@ -238,21 +238,24 @@ status:
 url:
   description: The HTTP url used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: https://10.11.12.13/api/mo/uni/tn-production.json
 '''
 
-from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 
-BOUNCE_TRIG_MAPPING = dict(coop='protocol', rarp='rarp-flood')
+BOUNCE_TRIG_MAPPING = dict(
+    coop='protocol',
+    rarp='rarp-flood',
+)
 
 
 def main():
     argument_spec = aci_argument_spec()
     argument_spec.update(
         tenant=dict(type='str', aliases=['tenant_name']),  # Not required for querying all objects
-        epr_policy=dict(type='str', aliases=['epr_name', 'name']),
+        epr_policy=dict(type='str', aliases=['epr_name', 'name']),  # Not required for querying all objects
         bounce_age=dict(type='int'),
         bounce_trigger=dict(type='str', choices=['coop', 'flood']),
         hold_interval=dict(type='int'),

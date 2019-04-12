@@ -324,16 +324,12 @@ class StrategyModule(StrategyBase):
 
                 self.update_active_connections(results)
 
-                try:
-                    included_files = IncludedFile.process_include_results(
-                        host_results,
-                        iterator=iterator,
-                        loader=self._loader,
-                        variable_manager=self._variable_manager
-                    )
-                except AnsibleError as e:
-                    # this is a fatal error, so we abort here regardless of block state
-                    return self._tqm.RUN_ERROR
+                included_files = IncludedFile.process_include_results(
+                    host_results,
+                    iterator=iterator,
+                    loader=self._loader,
+                    variable_manager=self._variable_manager
+                )
 
                 include_failure = False
                 if len(included_files) > 0:
@@ -365,7 +361,7 @@ class StrategyModule(StrategyBase):
                                     task=new_block._parent
                                 )
                                 display.debug("filtering new block on tags")
-                                final_block = new_block.filter_tagged_tasks(play_context, task_vars)
+                                final_block = new_block.filter_tagged_tasks(task_vars)
                                 display.debug("done filtering new block on tags")
 
                                 noop_block = self._prepare_and_create_noop_block_from(final_block, task._parent, iterator)

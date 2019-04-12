@@ -26,6 +26,7 @@ description:
       the IETF. It is documented in RFC 6241.
     - This module allows the user to execute NETCONF RPC requests as defined
       by IETF RFC standards as well as proprietary requests.
+extends_documentation_fragment: network_agnostic
 options:
   rpc:
     description:
@@ -123,7 +124,7 @@ stdout:
   description: The raw XML string containing configuration or state data
                received from the underlying ncclient library.
   returned: always apart from low-level errors (such as action plugin)
-  type: string
+  type: str
   sample: '...'
 stdout_lines:
   description: The value of stdout split into a list

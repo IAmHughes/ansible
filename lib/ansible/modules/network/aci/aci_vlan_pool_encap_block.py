@@ -18,16 +18,6 @@ module: aci_vlan_pool_encap_block
 short_description: Manage encap blocks assigned to VLAN pools (fvns:EncapBlk)
 description:
 - Manage VLAN encap blocks that are assigned to VLAN pools on Cisco ACI fabrics.
-notes:
-- The C(pool) must exist in order to add or delete a encap block.
-seealso:
-- module: aci_vlan_pool
-- name: APIC Management Information Model reference
-  description: More information about the internal APIC class B(fvns:EncapBlk).
-  link: https://developer.cisco.com/docs/apic-mim-ref/
-author:
-- Jacob McGill (@jmcgill298)
-- Dag Wieers (@dagwieers)
 version_added: '2.5'
 options:
   allocation_mode:
@@ -75,6 +65,17 @@ options:
     choices: [ absent, present, query ]
     default: present
 extends_documentation_fragment: aci
+notes:
+- The C(pool) must exist in order to add or delete a encap block.
+seealso:
+- module: aci_encap_pool_range
+- module: aci_vlan_pool
+- name: APIC Management Information Model reference
+  description: More information about the internal APIC class B(fvns:EncapBlk).
+  link: https://developer.cisco.com/docs/apic-mim-ref/
+author:
+- Jacob McGill (@jmcgill298)
+- Dag Wieers (@dagwieers)
 '''
 
 EXAMPLES = r'''
@@ -164,7 +165,7 @@ error:
 raw:
   description: The raw output returned by the APIC REST API (xml or json)
   returned: parse error
-  type: string
+  type: str
   sample: '<?xml version="1.0" encoding="UTF-8"?><imdata totalCount="1"><error code="122" text="unknown managed object class foo"/></imdata>'
 sent:
   description: The actual/minimal configuration pushed to the APIC
@@ -213,17 +214,17 @@ proposed:
 filter_string:
   description: The filter string used for the request
   returned: failure or debug
-  type: string
+  type: str
   sample: ?rsp-prop-include=config-only
 method:
   description: The HTTP method used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: POST
 response:
   description: The HTTP response from the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: OK (30 bytes)
 status:
   description: The HTTP status from the APIC
@@ -233,24 +234,24 @@ status:
 url:
   description: The HTTP url used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: https://10.11.12.13/api/mo/uni/tn-production.json
 '''
 
-from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 
 
 def main():
     argument_spec = aci_argument_spec()
     argument_spec.update(
-        allocation_mode=dict(type='str', aliases=['mode'], choices=['dynamic', 'inherit', 'static']),
-        description=dict(type='str', aliases=['descr']),
         pool=dict(type='str', aliases=['pool_name']),  # Not required for querying all objects
-        pool_allocation_mode=dict(type='str', aliases=['pool_mode'], choices=['dynamic', 'static']),
         block_name=dict(type='str', aliases=['name']),  # Not required for querying all objects
         block_end=dict(type='int', aliases=['end']),  # Not required for querying all objects
         block_start=dict(type='int', aliases=["start"]),  # Not required for querying all objects
+        allocation_mode=dict(type='str', aliases=['mode'], choices=['dynamic', 'inherit', 'static']),
+        description=dict(type='str', aliases=['descr']),
+        pool_allocation_mode=dict(type='str', aliases=['pool_mode'], choices=['dynamic', 'static']),
         state=dict(type='str', default='present', choices=['absent', 'present', 'query']),
     )
 

@@ -16,22 +16,6 @@ module: aci_epg_to_domain
 short_description: Bind EPGs to Domains (fv:RsDomAtt)
 description:
 - Bind EPGs to Physical and Virtual Domains on Cisco ACI fabrics.
-notes:
-- The C(tenant), C(ap), C(epg), and C(domain) used must exist before using this module in your playbook.
-  The M(aci_tenant) M(aci_ap), M(aci_epg) M(aci_domain) modules can be used for this.
-- OpenStack VMM domains must not be created using this module. The OpenStack VMM domain is created directly
-  by the Cisco APIC Neutron plugin as part of the installation and configuration.
-  This module can be used to query status of an OpenStack VMM domain.
-seealso:
-- module: aci_tenant
-- module: aci_ap
-- module: aci_epg
-- module: aci_domain
-- name: APIC Management Information Model reference
-  description: More information about the internal APIC class B(fv:RsDomAtt).
-  link: https://developer.cisco.com/docs/apic-mim-ref/
-author:
-- Jacob McGill (@jmcgill298)
 version_added: '2.4'
 options:
   allow_useg:
@@ -115,6 +99,21 @@ options:
     type: str
     choices: [ cloudfoundry, kubernetes, microsoft, openshift, openstack, redhat, vmware ]
 extends_documentation_fragment: aci
+notes:
+- The C(tenant), C(ap), C(epg), and C(domain) used must exist before using this module in your playbook.
+  The M(aci_tenant) M(aci_ap), M(aci_epg) M(aci_domain) modules can be used for this.
+- OpenStack VMM domains must not be created using this module. The OpenStack VMM domain is created directly
+  by the Cisco APIC Neutron plugin as part of the installation and configuration.
+  This module can be used to query status of an OpenStack VMM domain.
+seealso:
+- module: aci_ap
+- module: aci_epg
+- module: aci_domain
+- name: APIC Management Information Model reference
+  description: More information about the internal APIC class B(fv:RsDomAtt).
+  link: https://developer.cisco.com/docs/apic-mim-ref/
+author:
+- Jacob McGill (@jmcgill298)
 '''
 
 EXAMPLES = r'''
@@ -200,7 +199,7 @@ error:
 raw:
   description: The raw output returned by the APIC REST API (xml or json)
   returned: parse error
-  type: string
+  type: str
   sample: '<?xml version="1.0" encoding="UTF-8"?><imdata totalCount="1"><error code="122" text="unknown managed object class foo"/></imdata>'
 sent:
   description: The actual/minimal configuration pushed to the APIC
@@ -249,17 +248,17 @@ proposed:
 filter_string:
   description: The filter string used for the request
   returned: failure or debug
-  type: string
+  type: str
   sample: ?rsp-prop-include=config-only
 method:
   description: The HTTP method used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: POST
 response:
   description: The HTTP response from the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: OK (30 bytes)
 status:
   description: The HTTP status from the APIC
@@ -269,12 +268,12 @@ status:
 url:
   description: The HTTP url used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: https://10.11.12.13/api/mo/uni/tn-production.json
 '''
 
-from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 
 VM_PROVIDER_MAPPING = dict(
     cloudfoundry='CloudFoundry',

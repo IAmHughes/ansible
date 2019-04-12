@@ -17,13 +17,6 @@ module: aci_switch_policy_vpc_protection_group
 short_description: Manage switch policy explicit vPC protection groups (fabric:ExplicitGEp, fabric:NodePEp).
 description:
 - Manage switch policy explicit vPC protection groups on Cisco ACI fabrics.
-seealso:
-- module: aci_switch_policy_leaf_profile
-- name: APIC Management Information Model reference
-  description: More information about the internal APIC classes B(fabric:ExplicitGEp) and B(fabric:NodePEp).
-  link: https://developer.cisco.com/docs/apic-mim-ref/
-author:
-- Bruno Calogero (@brunocalogero)
 version_added: '2.5'
 options:
   protection_group:
@@ -61,6 +54,13 @@ options:
     choices: [ absent, present, query ]
     default: present
 extends_documentation_fragment: aci
+seealso:
+- module: aci_switch_policy_leaf_profile
+- name: APIC Management Information Model reference
+  description: More information about the internal APIC classes B(fabric:ExplicitGEp) and B(fabric:NodePEp).
+  link: https://developer.cisco.com/docs/apic-mim-ref/
+author:
+- Bruno Calogero (@brunocalogero)
 '''
 
 EXAMPLES = r'''
@@ -137,7 +137,7 @@ error:
 raw:
   description: The raw output returned by the APIC REST API (xml or json)
   returned: parse error
-  type: string
+  type: str
   sample: '<?xml version="1.0" encoding="UTF-8"?><imdata totalCount="1"><error code="122" text="unknown managed object class foo"/></imdata>'
 sent:
   description: The actual/minimal configuration pushed to the APIC
@@ -186,17 +186,17 @@ proposed:
 filter_string:
   description: The filter string used for the request
   returned: failure or debug
-  type: string
+  type: str
   sample: ?rsp-prop-include=config-only
 method:
   description: The HTTP method used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: POST
 response:
   description: The HTTP response from the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: OK (30 bytes)
 status:
   description: The HTTP status from the APIC
@@ -206,12 +206,12 @@ status:
 url:
   description: The HTTP url used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: https://10.11.12.13/api/mo/uni/tn-production.json
 '''
 
-from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 
 
 def main():

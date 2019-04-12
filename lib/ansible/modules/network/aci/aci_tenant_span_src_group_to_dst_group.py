@@ -16,18 +16,6 @@ module: aci_tenant_span_src_group_to_dst_group
 short_description: Bind SPAN source groups to destination groups (span:SpanLbl)
 description:
 - Bind SPAN source groups to associated destinaton groups on Cisco ACI fabrics.
-notes:
-- The C(tenant), C(src_group), and C(dst_group) must exist before using this module in your playbook.
-  The M(aci_tenant), M(aci_tenant_span_src_group), and M(aci_tenant_span_dst_group) modules can be used for this.
-seealso:
-- module: aci_tenant
-- module: aci_tenant_span_src_group
-- module: aci_tenant_span_dst_group
-- name: APIC Management Information Model reference
-  description: More information about the internal APIC class B(span:SrcGrp).
-  link: https://developer.cisco.com/docs/apic-mim-ref/
-author:
-- Jacob McGill (@jmcgill298)
 version_added: '2.4'
 options:
   description:
@@ -56,6 +44,18 @@ options:
     type: str
     aliases: [ tenant_name ]
 extends_documentation_fragment: aci
+notes:
+- The C(tenant), C(src_group), and C(dst_group) must exist before using this module in your playbook.
+  The M(aci_tenant), M(aci_tenant_span_src_group), and M(aci_tenant_span_dst_group) modules can be used for this.
+seealso:
+- module: aci_tenant
+- module: aci_tenant_span_src_group
+- module: aci_tenant_span_dst_group
+- name: APIC Management Information Model reference
+  description: More information about the internal APIC class B(span:SrcGrp).
+  link: https://developer.cisco.com/docs/apic-mim-ref/
+author:
+- Jacob McGill (@jmcgill298)
 '''
 
 EXAMPLES = r'''
@@ -102,7 +102,7 @@ error:
 raw:
   description: The raw output returned by the APIC REST API (xml or json)
   returned: parse error
-  type: string
+  type: str
   sample: '<?xml version="1.0" encoding="UTF-8"?><imdata totalCount="1"><error code="122" text="unknown managed object class foo"/></imdata>'
 sent:
   description: The actual/minimal configuration pushed to the APIC
@@ -151,17 +151,17 @@ proposed:
 filter_string:
   description: The filter string used for the request
   returned: failure or debug
-  type: string
+  type: str
   sample: ?rsp-prop-include=config-only
 method:
   description: The HTTP method used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: POST
 response:
   description: The HTTP response from the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: OK (30 bytes)
 status:
   description: The HTTP status from the APIC
@@ -171,22 +171,22 @@ status:
 url:
   description: The HTTP url used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: https://10.11.12.13/api/mo/uni/tn-production.json
 '''
 
-from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 
 
 def main():
     argument_spec = aci_argument_spec()
     argument_spec.update(
-        description=dict(type='str', aliases=['descr']),
+        tenant=dict(type='str', aliases=['tenant_name']),  # Not required for querying all objects
         dst_group=dict(type='str'),  # Not required for querying all objects
         src_group=dict(type='str'),  # Not required for querying all objects
+        description=dict(type='str', aliases=['descr']),
         state=dict(type='str', default='present', choices=['absent', 'present', 'query']),
-        tenant=dict(type='str', aliases=['tenant_name']),  # Not required for querying all objects
     )
 
     module = AnsibleModule(

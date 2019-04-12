@@ -97,13 +97,13 @@ EXAMPLES = """
 
 RETURN = """
 firewall_address_config:
-  description: full firewall adresses config string.
+  description: full firewall addresses config string.
   returned: always
-  type: string
+  type: str
 change_string:
   description: The commands executed by the module.
   returned: only if config changed
-  type: string
+  type: str
 """
 
 from ansible.module_utils.network.fortios.fortios import fortios_argument_spec, fortios_required_if

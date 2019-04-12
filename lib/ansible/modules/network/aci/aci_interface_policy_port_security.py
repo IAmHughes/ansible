@@ -16,12 +16,6 @@ module: aci_interface_policy_port_security
 short_description: Manage port security (l2:PortSecurityPol)
 description:
 - Manage port security on Cisco ACI fabrics.
-seealso:
-- name: APIC Management Information Model reference
-  description: More information about the internal APIC class B(l2:PortSecurityPol).
-  link: https://developer.cisco.com/docs/apic-mim-ref/
-author:
-- Dag Wieers (@dagwieers)
 version_added: '2.4'
 options:
   port_security:
@@ -49,6 +43,12 @@ options:
     choices: [ absent, present, query ]
     default: present
 extends_documentation_fragment: aci
+seealso:
+- name: APIC Management Information Model reference
+  description: More information about the internal APIC class B(l2:PortSecurityPol).
+  link: https://developer.cisco.com/docs/apic-mim-ref/
+author:
+- Dag Wieers (@dagwieers)
 '''
 
 # FIXME: Add more, better examples
@@ -95,7 +95,7 @@ error:
 raw:
   description: The raw output returned by the APIC REST API (xml or json)
   returned: parse error
-  type: string
+  type: str
   sample: '<?xml version="1.0" encoding="UTF-8"?><imdata totalCount="1"><error code="122" text="unknown managed object class foo"/></imdata>'
 sent:
   description: The actual/minimal configuration pushed to the APIC
@@ -144,17 +144,17 @@ proposed:
 filter_string:
   description: The filter string used for the request
   returned: failure or debug
-  type: string
+  type: str
   sample: ?rsp-prop-include=config-only
 method:
   description: The HTTP method used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: POST
 response:
   description: The HTTP response from the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: OK (30 bytes)
 status:
   description: The HTTP status from the APIC
@@ -164,18 +164,18 @@ status:
 url:
   description: The HTTP url used for the request to the APIC
   returned: failure or debug
-  type: string
+  type: str
   sample: https://10.11.12.13/api/mo/uni/tn-production.json
 '''
 
-from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.aci.aci import ACIModule, aci_argument_spec
 
 
 def main():
     argument_spec = aci_argument_spec()
     argument_spec.update(
-        port_security=dict(type='str', required=False, aliases=['name']),  # Not required for querying all objects
+        port_security=dict(type='str', aliases=['name']),  # Not required for querying all objects
         description=dict(type='str', aliases=['descr']),
         max_end_points=dict(type='int'),
         state=dict(type='str', default='present', choices=['absent', 'present', 'query']),

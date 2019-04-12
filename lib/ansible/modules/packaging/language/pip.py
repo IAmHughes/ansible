@@ -190,6 +190,11 @@ EXAMPLES = '''
     requirements: /my_app/requirements.txt
     extra_args: -i https://example.com/pypi/simple
 
+# Install specified python requirements offline from a local directory with downloaded packages.
+- pip:
+    requirements: /my_app/requirements.txt
+    extra_args: "--no-index --find-links=file:///my_downloaded_packages_dir"
+
 # Install (Bottle) for Python 3.3 specifically,using the 'pip-3.3' executable.
 - pip:
     name: bottle
@@ -211,7 +216,7 @@ RETURN = '''
 cmd:
   description: pip command used by the module
   returned: success
-  type: string
+  type: str
   sample: pip2 install ansible six
 name:
   description: list of python modules targetted by pip
@@ -221,17 +226,17 @@ name:
 requirements:
   description: Path to the requirements file
   returned: success, if a requirements file was provided
-  type: string
+  type: str
   sample: "/srv/git/project/requirements.txt"
 version:
   description: Version of the package specified in 'name'
   returned: success, if a name and version were provided
-  type: string
+  type: str
   sample: "2.5.1"
 virtualenv:
   description: Path to the virtualenv
   returned: success, if a virtualenv path was provided
-  type: string
+  type: str
   sample: "/tmp/virtualenv"
 '''
 

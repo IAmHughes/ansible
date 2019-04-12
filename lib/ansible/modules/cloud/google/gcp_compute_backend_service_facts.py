@@ -18,15 +18,14 @@
 # ----------------------------------------------------------------------------
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ################################################################################
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ["preview"],
-                    'supported_by': 'community'}
+ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -43,20 +42,21 @@ requirements:
 options:
   filters:
     description:
-    - A list of filter value pairs. Available filters are listed here U(U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).)
+    - A list of filter value pairs. Available filters are listed here U(https://cloud.google.com/sdk/gcloud/reference/topic/filters.)
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
 extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a backend service facts
+- name: " a backend service facts"
   gcp_compute_backend_service_facts:
-      filters:
-      - name = test_object
-      project: test_project
-      auth_kind: serviceaccount
-      service_account_file: "/tmp/auth.pem"
+    filters:
+    - name = test_object
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: facts
 '''
 
 RETURN = '''
@@ -206,9 +206,20 @@ items:
               - "'&' and '=' will be percent encoded and not treated as delimiters."
               returned: success
               type: list
+        signedUrlCacheMaxAgeSec:
+          description:
+          - Maximum number of seconds the response to a signed URL request will be
+            considered fresh, defaults to 1hr (3600s). After this time period, the
+            response will be revalidated before being served.
+          - 'When serving responses to signed URL requests, Cloud CDN will internally
+            behave as though all responses from this backend had a "Cache-Control:
+            public, max-age=[TTL]" header, regardless of any existing Cache-Control
+            header. The actual headers served in responses will not be altered.'
+          returned: success
+          type: int
     connectionDraining:
       description:
-      - Settings for connection draining.
+      - Settings for connection draining .
       returned: success
       type: complex
       contains:
@@ -221,6 +232,12 @@ items:
     creationTimestamp:
       description:
       - Creation timestamp in RFC3339 text format.
+      returned: success
+      type: str
+    fingerprint:
+      description:
+      - Fingerprint of this resource. A hash of the contents stored in this object.
+        This field is used in optimistic locking.
       returned: success
       type: str
     description:
@@ -261,24 +278,24 @@ items:
           type: bool
         oauth2ClientId:
           description:
-          - OAuth2 Client ID for IAP.
+          - OAuth2 Client ID for IAP .
           returned: success
           type: str
         oauth2ClientSecret:
           description:
-          - OAuth2 Client Secret for IAP.
+          - OAuth2 Client Secret for IAP .
           returned: success
           type: str
         oauth2ClientSecretSha256:
           description:
-          - OAuth2 Client Secret SHA-256 for IAP.
+          - OAuth2 Client Secret SHA-256 for IAP .
           returned: success
           type: str
     loadBalancingScheme:
       description:
       - Indicates whether the backend service will be used with internal or external
         load balancing. A backend service created for one type of load balancing cannot
-        be used with the other.
+        be used with the other. One of `INTERNAL` or `EXTERNAL`. Defaults to `EXTERNAL`.
       returned: success
       type: str
     name:
@@ -306,10 +323,9 @@ items:
         default is TCP.
       returned: success
       type: str
-    region:
+    securityPolicy:
       description:
-      - The region where the regional backend service resides.
-      - This field is not applicable to global backend services.
+      - The security policy associated with this backend service.
       returned: success
       type: str
     sessionAffinity:
@@ -341,11 +357,7 @@ import json
 
 
 def main():
-    module = GcpModule(
-        argument_spec=dict(
-            filters=dict(type='list', elements='str')
-        )
-    )
+    module = GcpModule(argument_spec=dict(filters=dict(type='list', elements='str')))
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
@@ -355,9 +367,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {
-        'items': items
-    }
+    return_value = {'items': items}
     module.exit_json(**return_value)
 
 
